@@ -4,7 +4,12 @@ import {Authenticator} from "@aws-amplify/ui-react";
 import App from "./App.jsx";
 import "./index.css";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error('Root element with id "root" not found');
+}
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <Authenticator>
       <App />

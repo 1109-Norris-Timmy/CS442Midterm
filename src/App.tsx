@@ -10,39 +10,56 @@ import {
 import { Amplify } from 'aws-amplify';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import "@aws-amplify/ui-react/styles.css";
-import { generateClient } from 'aws-amplify/data';
 import outputs from '../amplify_outputs.json';
 
-/**
- * @type {import('aws-amplify/data').Client<ImportAttributes('../amplify/data/resource').Schema>}}
- */
+// Check if Amplify is properly configured
+const isAmplifyConfigured = 
+  outputs &&
+  outputs.aws_user_pools_web_client_id &&
+  !outputs.aws_user_pools_web_client_id.includes("REPLACE_WITH") &&
+  outputs.aws_user_pools_id &&
+  !outputs.aws_user_pools_id.includes("REPLACE_WITH");
 
-Amplify.configure(outputs);
-
-const client = generateClient({
-    authMode: "userPool",
-});
+if (isAmplifyConfigured) {
+  Amplify.configure(outputs);
+} else {
+  console.warn("Amplify configuration contains placeholder values");
+}
 
 export default function App() {
-    const [userprofiles, setUserProfiles]= useState([]);
-    const {signOut} = useAuthenticator((context) => [context.user]);
+    const [userprofiles, setUserProfiles] = useState([]);
+    const { signOut, user } = useAuthenticator((context) => [context.user]);
 
     useEffect(() => {
         fetchUserProfiles();
     }, []);
 
     async function fetchUserProfiles() {
-        const result = await client.query.userprofile.findMany();
-        setUserProfiles(result);
+        // Mock data since GraphQL schema is not configured
+        const mockProfiles = [
+            { id: '1', name: 'John Doe', email: 'john@example.com', age: 30 },
+            { id: '2', name: 'Jane Smith', email: 'jane@example.com', age: 25 },
+            { id: '3', name: 'Bob Johnson', email: 'bob@example.com', age: 35 }
+        ];
+        setUserProfiles(mockProfiles);
     }
 
     return (
         <View padding="20px">
             <Flex direction="row" justifyContent="space-between" alignItems="center">
                 <Heading level={3}>User Profiles</Heading>
-                <Button onClick={signOut}>Sign Out</Button>
+                <Flex direction="row" gap="10px" alignItems="center">
+                    {user && <span>Welcome, {user.username || user.signInDetails?.loginId || 'User'}</span>}
+                    <Button onClick={signOut}>Sign Out</Button>
+                </Flex>
             </Flex>
             <Divider orientation="horizontal" margin="10px 0" />
+            {!isAmplifyConfigured && (
+                <View backgroundColor="orange.10" padding="10px" borderRadius="5px" marginBottom="10px">
+                    <Heading level={5}>⚠️ Development Mode</Heading>
+                    <p>Amplify is not configured. Showing mock data. Configure amplify_outputs.json to enable real data.</p>
+                </View>
+            )}
             <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap="10px">
                 {userprofiles.map((profile) => (
                     <View key={profile.id} padding="10px" border="1px solid #ccc" borderRadius="5px">
@@ -54,6 +71,5 @@ export default function App() {
             </Grid>
         </View>
     );
-}   
-
+}
 

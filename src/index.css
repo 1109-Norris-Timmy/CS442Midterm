@@ -23,5 +23,3 @@
   .box:nth-child(3n+3){
     grid-column: 3;
   }
-
-}

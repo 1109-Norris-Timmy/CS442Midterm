@@ -19,8 +19,8 @@ const isAmplifyConfigured = (() => {
     return !outputs.auth.user_pool_client_id.includes("REPLACE_WITH") &&
            !outputs.auth.user_pool_id.includes("REPLACE_WITH");
   }
-  // Check for old format (aws_user_pools_web_client_id)
-  if (outputs.aws_user_pools_web_client_id) {
+  // Check for old format (aws_user_pools_web_client_id) - safely access properties
+  if (outputs && typeof outputs === 'object' && 'aws_user_pools_web_client_id' in outputs) {
     return !outputs.aws_user_pools_web_client_id.includes("REPLACE_WITH") &&
            !outputs.aws_user_pools_id.includes("REPLACE_WITH");
   }
@@ -35,7 +35,7 @@ if (isAmplifyConfigured) {
 
 export default function App() {
     // Initialize with mock data to avoid type inference issues
-    const [userprofiles, setUserProfiles] = useState([
+    const [userprofiles] = useState([
         { id: '1', name: 'John Doe', email: 'john@example.com', age: 30 },
         { id: '2', name: 'Jane Smith', email: 'jane@example.com', age: 25 },
         { id: '3', name: 'Bob Johnson', email: 'bob@example.com', age: 35 }
@@ -43,19 +43,8 @@ export default function App() {
     const { signOut, user } = useAuthenticator((context) => [context.user]);
 
     useEffect(() => {
-        // Mock data is already set in initial state
-        // fetchUserProfiles();
+        // Mock data is already set in initial state - no need to fetch
     }, []);
-
-    // async function fetchUserProfiles() {
-    //     // Mock data since GraphQL schema is not configured
-    //     const mockProfiles = [
-    //         { id: '1', name: 'John Doe', email: 'john@example.com', age: 30 },
-    //         { id: '2', name: 'Jane Smith', email: 'jane@example.com', age: 25 },
-    //         { id: '3', name: 'Bob Johnson', email: 'bob@example.com', age: 35 }
-    //     ];
-    //     setUserProfiles(mockProfiles);
-    // }
 
     return (
         <View padding="20px">
